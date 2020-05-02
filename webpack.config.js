@@ -14,14 +14,12 @@ const optimization = () => {
 			chunks: 'all'
 			}
 		}
-
 	if (isProd) {
 		config.minimizer = [
 			new OptimazeCssAssetPlugin(),
 			new TerserWebpackPlugin(),
 		]
 	}
-
 	return config
 }
 
@@ -47,7 +45,6 @@ console.log('is dev: ', isDev)
 
 module.exports = {
 	context: path.resolve(__dirname, 'src'),
-	mode: 'development',
 	entry: {
 		main: './index.js',
 	},
@@ -80,7 +77,7 @@ module.exports = {
 			},
 			{
 				test: /\.scss$/,
-				use: CssLoaders('sass-loader')
+				use: CssLoaders('sass-loader'),
 			},
 			{
 				test: /\.pug$/,
@@ -92,6 +89,7 @@ module.exports = {
 					options: {
 						hmr: isDev,
 						reloadAll:true,
+						pretty: true,
 					}
 				}],
 			},
