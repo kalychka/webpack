@@ -1,9 +1,11 @@
-const path = require('path')
-const HTMLWebpackPlugin = require('html-webpack-plugin')
-const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const path = require('path');
+const webpack = require('webpack');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimazeCssAssetPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
+const fs = require('fs');
 
 const isDev = process.env.NODE_ENV === 'development'
 const isProd = !isDev
@@ -23,7 +25,15 @@ const optimization = () => {
 	return config
 }
 
-const filename = ext => isDev ? `[name].${ext}` : `[name].[hash].${ext}`
+const PATHS = {
+	src: path.resolve(__dirname, "src"),
+	dist: path.resolve(__dirname, "dist")
+}
+
+const PAGES_DIR = `${PATHS.src}/pages`
+const PAGES = fs.readdirSync(PAGES_DIR).filter(filename => filename.endsWith('.pug'))
+
+const filename = (name, ext) => isDev ? `${name}.${ext}` : `${name}.[hash].${ext}`
 
 const CssLoaders = (extra) => {
 	const loaders = [{
@@ -46,10 +56,11 @@ console.log('is dev: ', isDev)
 module.exports = {
 	context: path.resolve(__dirname, 'src'),
 	entry: {
-		main: './index.js',
+		index: './index.js',
+		about: './about.js'
 	},
 	output: {
-		filename: filename('js'),
+		filename: filename('[name]', 'js'),
 		path: path.resolve(__dirname, 'dist')
 	},
 	optimization: optimization(),
@@ -58,16 +69,22 @@ module.exports = {
 		hot: isDev,
 	},
 	plugins: [
-		new HTMLWebpackPlugin({
-			template: './index.pug',
+		...PAGES.map((page) => new HTMLWebpackPlugin({
+			template: `${PAGES_DIR}/${page}`,
+			filename: filename(`${page.replace(/\.pug/, '')}`, 'html'),
+			chunks: '[name]',
 			minify: {
-				collapseWhitespace: isProd,
+				collapseWhitespace: false
 			}
-		}),
+		  })),
 		new CleanWebpackPlugin(),
 		new MiniCssExtractPlugin({
-			filename: filename('css'),
-		})
+			filename: filename('[name]', 'css'),
+		}),
+		new webpack.ProvidePlugin({
+			$: "jquery",
+			jQuery: "jquery"
+		}),
 	],
 	module:  {
 		rules: [
