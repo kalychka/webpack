@@ -49,6 +49,18 @@ const CssLoaders = (extra) => {
 	return loaders
 }
 
+const BabelOptions = preset => {
+	const opts = {
+		presets: [
+			'@babel/preset-env',
+		],
+	}
+	if (preset) {
+		opts.presets.push(preset)
+	}
+	return opts
+}
+
 console.log('is dev: ', isDev)
 
 module.exports = {
@@ -56,9 +68,7 @@ module.exports = {
 	context: path.resolve(__dirname, 'src'),
 
 	entry: {
-		index: './entry/index.js',
-		uikit: './entry/ui-kit.js',
-		uikit2: './entry/ui-kit2.js'
+		index: ['@babel/polyfill','./index.jsx'],
 	},
 
 	output: {
@@ -79,19 +89,14 @@ module.exports = {
 	devServer: {
 		port: 8081,
 		hot: isDev,
-		index: 'ui-kit2.html',
+		index: 'index.html',
 	},
 	
 	plugins: [
 		new HTMLWebpackPlugin({
-			template: './pages/ui-kit.pug',
-			filename: filename('ui-kit', 'html'),
-			chunks: ['uikit'],
-		}),
-		new HTMLWebpackPlugin({
-			template: './pages/ui-kit2.pug',
-			filename: filename('ui-kit2', 'html'),
-			chunks: ['uikit2'],
+			template: './index.pug',
+			filename: filename('index', 'html'),
+			chunks: ['index'],
 		}),
 		new CleanWebpackPlugin(),
 		new MiniCssExtractPlugin({
@@ -137,7 +142,31 @@ module.exports = {
 					name: '[name].[ext]',
 					outputPath: 'assets/fonts/'
 				}
-			}
+			},
+			{ 
+				test: /\.js$/,
+				exclude: /node_modules/, 
+				loader: {
+					loader: 'babel-loader',
+					options: BabelOptions()
+				} 
+			},
+			{ 
+				test: /\.ts$/,
+				exclude: /node_modules/, 
+				loader: {
+					loader: 'babel-loader',
+					options: BabelOptions('@babel/preset-typescipt')
+					}
+			},
+			{ 
+				test: /\.jsx$/,
+				exclude: /node_modules/, 
+				loader: {
+					loader: 'babel-loader',
+					options: BabelOptions('@babel/preset-react')
+					}
+			},
 		]
 	},
 }
