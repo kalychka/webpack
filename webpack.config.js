@@ -68,7 +68,7 @@ module.exports = {
 	context: path.resolve(__dirname, 'src'),
 
 	entry: {
-		index: ['@babel/polyfill','./index.jsx'],
+		index: ['@babel/polyfill','./index.ts'],
 	},
 
 	output: {
@@ -156,7 +156,7 @@ module.exports = {
 				exclude: /node_modules/, 
 				loader: {
 					loader: 'babel-loader',
-					options: BabelOptions('@babel/preset-typescipt')
+					options: BabelOptions('@babel/preset-typescript')
 					}
 			},
 			{ 
